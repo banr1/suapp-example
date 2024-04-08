@@ -25,4 +25,27 @@ contract ConfidentialStore is Suapp {
 
         return abi.encodeWithSelector(this.updateKeyOnchain.selector, record.id);
     }
+
+    event TxnSignature(bytes32 r, bytes32 s);
+
+    function onchain() public emitOffchainLogs {}
+
+    function offchain() public returns (bytes memory) {
+        bytes memory signingKey = Suave.confidentialRetrieve(signingKeyRecord, PRIVATE_KEY);
+
+        Transactions.EIP155Request memory txnWithToAddress = Transactions.EIP155Request({
+            to: address(0x00000000000000000000000000000000DeaDBeef),
+            gas: 1000000,
+            gasPrice: 500,
+            value: 1,
+            nonce: 1,
+            data: bytes(""),
+            chainId: 1337
+        });
+
+        Transactions.EIP155 memory txn = Transactions.signTxn(txnWithToAddress, string(signingKey));
+        emit TxnSignature(txn.r, txn.s);
+
+        return abi.encodeWithSelector(this.onchain.selector);
+    }
 }
