@@ -10,11 +10,13 @@ contract ConfidentialStore is Suapp {
     Suave.DataId signingKeyRecord;
     string public PRIVATE_KEY = "KEY";
 
-    function updateKeyOnchain(Suave.DataId _signingKeyRecord) public {
+    event TxnSignature(bytes32 r, bytes32 s);
+
+    function registerPrivateKeyOnchain(Suave.DataId _signingKeyRecord) public {
         signingKeyRecord = _signingKeyRecord;
     }
 
-    function registerPrivateKeyOffchain() public returns (bytes memory) {
+    function registerPrivateKey() public returns (bytes memory) {
         bytes memory keyData = Context.confidentialInputs();
 
         address[] memory peekers = new address[](1);
@@ -23,14 +25,12 @@ contract ConfidentialStore is Suapp {
         Suave.DataRecord memory record = Suave.newDataRecord(0, peekers, peekers, "private_key");
         Suave.confidentialStore(record.id, PRIVATE_KEY, keyData);
 
-        return abi.encodeWithSelector(this.updateKeyOnchain.selector, record.id);
+        return abi.encodeWithSelector(this.registerPrivateKeyOnchain.selector, record.id);
     }
 
-    event TxnSignature(bytes32 r, bytes32 s);
+    function sendTxOnchain() public emitOffchainLogs {}
 
-    function onchain() public emitOffchainLogs {}
-
-    function offchain() public returns (bytes memory) {
+    function sendTx() public returns (bytes memory) {
         bytes memory signingKey = Suave.confidentialRetrieve(signingKeyRecord, PRIVATE_KEY);
 
         Transactions.EIP155Request memory txnWithToAddress = Transactions.EIP155Request({
@@ -46,6 +46,6 @@ contract ConfidentialStore is Suapp {
         Transactions.EIP155 memory txn = Transactions.signTxn(txnWithToAddress, string(signingKey));
         emit TxnSignature(txn.r, txn.s);
 
-        return abi.encodeWithSelector(this.onchain.selector);
+        return abi.encodeWithSelector(this.sendTxOnchain.selector);
     }
 }
