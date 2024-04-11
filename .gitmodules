@@ -4,3 +4,6 @@
 [submodule "lib/suave-std"]
 	path = contracts/lib/suave-std
 	url = https://github.com/flashbots/suave-std
+[submodule "contracts/lib/solady"]
+	path = contracts/lib/solady
+	url = https://github.com/vectorized/solady
