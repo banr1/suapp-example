@@ -21,9 +21,12 @@ jobs:
 
       - name: Install deps
         run: forge install
+        working-directory: contracts
 
       # - name: Check gas snapshots
       #   run: forge snapshot --check
+      #   working-directory: contracts
 
       # - name: Run tests
       #   run: forge test
+      #   working-directory: contracts
