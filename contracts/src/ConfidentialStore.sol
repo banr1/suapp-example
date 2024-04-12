@@ -5,7 +5,7 @@ import "suave-std/Suapp.sol";
 import "suave-std/Context.sol";
 import "suave-std/Transactions.sol";
 import "suave-std/suavelib/Suave.sol";
-import "solady/src/utils/LibString.sol";
+import "solady/utils/LibString.sol";
 
 contract ConfidentialStore is Suapp {
     Suave.DataId signingKeyRecord;
