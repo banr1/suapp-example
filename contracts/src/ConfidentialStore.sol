@@ -14,6 +14,8 @@ contract ConfidentialStore is Suapp {
     string public constant GOERLI_CHAINID_STR = "0x5";
     string public constant INFURA_GOERLI_RPC = "https://goerli.infura.io/v3/1301ac078b854c40887bdc6d21d2e2da";
 
+    event OffchainEvent(uint256 num);
+
     function registerPrivateKeyOnchain(Suave.DataId _signingKeyRecord) public {
         signingKeyRecord = _signingKeyRecord;
     }
@@ -63,5 +65,12 @@ contract ConfidentialStore is Suapp {
         Suave.doHTTPRequest(request);
 
         return abi.encodeWithSelector(this.sendTxOnchain.selector);
+    }
+
+    function helloOnchain() public emitOffchainLogs {}
+
+    function hello() public returns (bytes memory) {
+        emit OffchainEvent(1);
+        return abi.encodeWithSelector(this.helloOnchain.selector);
     }
 }
