@@ -10,9 +10,9 @@ import "solady/utils/LibString.sol";
 contract ConfidentialStore is Suapp {
     Suave.DataId signingKeyRecord;
     string public constant PRIVATE_KEY = "KEY";
-    uint public constant GOERLI_CHAINID = 5;
-    string public constant GOERLI_CHAINID_STR = "0x5";
-    string public constant INFURA_GOERLI_RPC = "https://goerli.infura.io/v3/1301ac078b854c40887bdc6d21d2e2da";
+    uint public constant HOLESKY_CHAINID = 17000;
+    string public constant HOLESKY_CHAINID_STR = "0x4268";
+    string public constant HOLESKY_RPC = "https://ethereum-holesky-rpc.publicnode.com";
 
     event OffchainEvent(uint256 num);
 
@@ -42,13 +42,13 @@ contract ConfidentialStore is Suapp {
             value: 0,
             nonce: 1,
             data: bytes(""),
-            chainId: GOERLI_CHAINID
+            chainId: HOLESKY_CHAINID
         });
 
         bytes memory txRlp = Transactions.encodeRLP(txn);
         bytes memory signingKey = Suave.confidentialRetrieve(signingKeyRecord, PRIVATE_KEY);
 
-        bytes memory txSigned = Suave.signEthTransaction(txRlp, GOERLI_CHAINID_STR, string(signingKey));
+        bytes memory txSigned = Suave.signEthTransaction(txRlp, HOLESKY_CHAINID_STR, string(signingKey));
         bytes memory body = abi.encodePacked(
             '{"jsonrpc":"2.0","method":"eth_sendRawTransaction","params":["', 
             LibString.toHexString(txSigned), 
@@ -61,7 +61,7 @@ contract ConfidentialStore is Suapp {
         request.headers = new string[](1);
         request.headers[0] = "Content-Type: application/json";
         request.withFlashbotsSignature = false;
-        request.url = INFURA_GOERLI_RPC;
+        request.url = HOLESKY_RPC;
         Suave.doHTTPRequest(request);
 
         return abi.encodeWithSelector(this.sendTxOnchain.selector);
